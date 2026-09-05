@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -13,10 +14,54 @@ public sealed class ScheduleLesson
     public string Week { get; set; } = "";
 }
 
+public sealed record WeekCycle(int Number, DateTime Start);
+
 public sealed class ScheduleService
 {
     private const string ScheduleUrl = "https://kep.nung.edu.ua/pages/education/schedule";
+    private const string HintsUrl = "https://kep.nung.edu.ua/api/exam-hints";
     private static readonly HttpClient Client = new();
+
+    public async Task<IReadOnlyList<WeekCycle>> LoadWeekCyclesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var page = await Client.GetStringAsync(ScheduleUrl, cancellationToken);
+        var matches = Regex.Matches(page,
+            @"number:(\d+),startDate:`(\d{2}\.\d{2}\.\d{4})`",
+            RegexOptions.CultureInvariant);
+        var cycles = new List<WeekCycle>();
+        foreach (Match match in matches)
+        {
+            if (int.TryParse(match.Groups[1].Value, out var number)
+                && DateTime.TryParseExact(match.Groups[2].Value, "dd.MM.yyyy",
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out var start))
+            {
+                cycles.Add(new WeekCycle(number, start.Date));
+            }
+        }
+
+        return cycles
+            .GroupBy(cycle => cycle.Number)
+            .Select(group => group.First())
+            .OrderBy(cycle => cycle.Start)
+            .ToList();
+    }
+
+    public async Task<IReadOnlyDictionary<string, string>> LoadTeacherHintsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var json = await Client.GetStringAsync(HintsUrl, cancellationToken);
+        using var document = JsonDocument.Parse(json);
+        if (!document.RootElement.TryGetProperty("teachers", out var teachers)
+            || teachers.ValueKind != JsonValueKind.Object)
+        {
+            return new Dictionary<string, string>();
+        }
+
+        return teachers.EnumerateObject()
+            .Where(item => item.Value.ValueKind == JsonValueKind.String)
+            .ToDictionary(item => item.Name, item => item.Value.GetString() ?? "");
+    }
 
     public async Task<IReadOnlyList<string>> LoadGroupsAsync(
         CancellationToken cancellationToken = default)

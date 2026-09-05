@@ -31,14 +31,12 @@
             <StackPanel>
                 <TextBlock Text="Налаштування" Foreground="White" FontSize="20"
                        FontWeight="SemiBold" Margin="8,8,8,24"/>
-                <Button Content="Загальні" Click="GeneralTab_Click"
+                <Button x:Name="GeneralTabButton" Content="⚙  Загальні" Click="GeneralTab_Click"
                     Style="{StaticResource NavigationButtonStyle}"/>
-                <Button Content="Розклад" Click="ScheduleTab_Click"
-                    Style="{StaticResource NavigationButtonStyle}"/>
-                <Button Content="Зовнішній вигляд" Click="AppearanceTab_Click"
+                <Button x:Name="ScheduleTabButton" Content="▣  Розклад" Click="ScheduleTab_Click"
                     Style="{StaticResource NavigationButtonStyle}"/>
             </StackPanel>
-            <Button Grid.Row="1" Content="Про програму" Click="AboutTab_Click"
+            <Button x:Name="AboutTabButton" Grid.Row="1" Content="ⓘ  Про програму" Click="AboutTab_Click"
                 Style="{StaticResource NavigationButtonStyle}"/>
             </Grid>
         </Border>
@@ -59,16 +57,28 @@
                             <TextBox x:Name="GroupInput" Height="34" Padding="8,5" FontSize="14"
                                      TextChanged="GroupInput_TextChanged"/>
                             <ListBox x:Name="GroupSuggestions" MaxHeight="110" Visibility="Collapsed"
-                                     SelectionChanged="GroupSuggestions_SelectionChanged"/>
+                                     SelectionChanged="GroupSuggestions_SelectionChanged">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                             <TextBlock Text="Ця група завантажуватиметься після запуску програми."
                                        Foreground="#99FFFFFF" FontSize="12" Margin="0,10,0,0"/>
                             <CheckBox x:Name="StartWithWindowsCheckBox"
                                       Content="Запускати разом із Windows"
                                       Foreground="#D8FFFFFF" Margin="0,24,0,0"/>
-                                <Button Content="Перевірити оновлення" Click="CheckUpdatesButton_Click"
+                            <CheckBox x:Name="DisableNotificationsCheckBox"
+                                      Content="Вимкнути сповіщення про наближення пари"
+                                      Foreground="#D8FFFFFF" Margin="0,10,0,0"/>
+                            <Button Content="Перевірити оновлення" Click="CheckUpdatesButton_Click"
                                     HorizontalAlignment="Left" Padding="14,8" Margin="0,18,0,0"/>
-                                <TextBlock x:Name="UpdateStatusText" Foreground="#99FFFFFF"
+                            <TextBlock x:Name="UpdateStatusText" Foreground="#99FFFFFF"
                                        FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                            <Button Content="Оновлення розкладу" Click="TestRefreshButton_Click"
+                                    HorizontalAlignment="Left" Padding="12,7" Margin="0,22,0,0"/>
                         </StackPanel>
 
                         <StackPanel x:Name="SchedulePanel" Visibility="Collapsed">
@@ -80,27 +90,41 @@
                                 <TextBlock x:Name="OpacityValue" DockPanel.Dock="Right"
                                            Foreground="#D8FFFFFF" FontSize="14"/>
                             </DockPanel>
-                            <Slider x:Name="OpacitySlider" Minimum="0.35" Maximum="1" Height="28"
-                                    ValueChanged="OpacitySlider_ValueChanged"/>
-                        </StackPanel>
-
-                        <StackPanel x:Name="AppearancePanel" Visibility="Collapsed">
-                            <TextBlock Text="Зовнішній вигляд" Foreground="White" FontSize="25"
-                                       FontWeight="SemiBold" Margin="0,0,0,24"/>
+                                <Slider x:Name="OpacitySlider" Minimum="0.25" Maximum="1" Height="28"
+                                    ValueChanged="OpacitySlider_ValueChanged"
+                                    PreviewMouseLeftButtonDown="OpacitySlider_PreviewMouseLeftButtonDown"/>
+                                <TextBlock Text="Розмір тексту" Foreground="#D8FFFFFF" FontSize="14"
+                                       Margin="0,22,0,8"/>
+                                <ComboBox x:Name="TextSizeComboBox" SelectedValuePath="Tag" Height="34">
+                                <ComboBoxItem Content="Маленький" Tag="Small"/>
+                                <ComboBoxItem Content="Середній" Tag="Medium"/>
+                                <ComboBoxItem Content="Великий" Tag="Large"/>
+                                </ComboBox>
                             <TextBlock Text="Тема" Foreground="#D8FFFFFF" FontSize="14" Margin="0,0,0,8"/>
                             <ComboBox x:Name="ThemeComboBox" SelectedValuePath="Tag" Height="34">
                                 <ComboBoxItem Content="Midnight · синій чорний" Tag="Midnight"/>
                                 <ComboBoxItem Content="Violet · фіолетовий" Tag="Violet"/>
                                 <ComboBoxItem Content="Ember · помаранчевий" Tag="Ember"/>
                                 <ComboBoxItem Content="Graphite · сірий чорний" Tag="Graphite"/>
+                                <ComboBoxItem Content="Cyberpunk · неоновий" Tag="Cyberpunk"/>
+                                <ComboBoxItem Content="Matcha · зелений чай" Tag="Matcha"/>
+                                <ComboBoxItem Content="Ocean · глибокий синій" Tag="Ocean"/>
                             </ComboBox>
                             <TextBlock Text="Стиль картки" Foreground="#D8FFFFFF" FontSize="14"
                                        Margin="0,22,0,8"/>
                             <ComboBox x:Name="StyleComboBox" SelectedValuePath="Tag" Height="34">
-                                <ComboBoxItem Content="Мінімалізм · поточний" Tag="Minimalism"/>
-                                <ComboBoxItem Content="Повітряний · більше простору" Tag="Airy"/>
-                                <ComboBoxItem Content="Компактний · більше інформації" Tag="Compact"/>
+                                <ComboBoxItem Content="Стандартний" Tag="Minimalism"/>
+                                <ComboBoxItem Content="Хмаринка" Tag="Cloud"/>
                             </ComboBox>
+                                <TextBlock Text="Власний колір" Foreground="#D8FFFFFF" FontSize="14"
+                                       Margin="0,22,0,8"/>
+                                <StackPanel Orientation="Horizontal">
+                                <Border x:Name="CustomColorPreview" Width="42" Height="34"
+                                    Background="Transparent" CornerRadius="8"
+                                    BorderBrush="#66FFFFFF" BorderThickness="1"/>
+                                <Button Content="Обрати колір" Click="CustomColorButton_Click"
+                                    Padding="12,7" Margin="10,0,0,0"/>
+                                </StackPanel>
                             <TextBlock Text="Тема та стиль збережуться після перезапуску."
                                        Foreground="#99FFFFFF" FontSize="12" Margin="0,12,0,0"/>
                         </StackPanel>
@@ -110,8 +134,17 @@
                                        FontWeight="SemiBold" Margin="0,0,0,24"/>
                             <TextBlock Text="College Schedule Gadget" Foreground="#D8FFFFFF"
                                        FontSize="18" FontWeight="SemiBold"/>
-                            <TextBlock Text="Версія 1.0\nРозклад, відлік пар і швидкі налаштування."
+                            <TextBlock Text="Версія 1.1"
                                        Foreground="#99FFFFFF" FontSize="13" Margin="0,10,0,0"/>
+                            <TextBlock Text="Створено студентом групи АК-25-02 Настишиним Д. І. для ВСП «ФКЕП ІФНТУНГ»."
+                                       Foreground="#99FFFFFF" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="Розклад, відлік пар і швидкі налаштування."
+                                       Foreground="#99FFFFFF" FontSize="13" Margin="0,4,0,24" TextWrapping="Wrap"/>
+                            
+                            <Button Content="Повідомити про баг (Telegram)" Click="TgSupportButton_Click"
+                                    HorizontalAlignment="Left" Padding="14,8" Margin="0,0,0,10"/>
+                            <Button Content="Підтримати фінансово (Банка)" Click="DonateButton_Click"
+                                    HorizontalAlignment="Left" Padding="14,8"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

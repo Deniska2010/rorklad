@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text.Json;
 
@@ -13,8 +14,11 @@ public sealed class AppSettings
     public double? Height { get; set; }
     public bool IsPinned { get; set; }
     public bool StartWithWindows { get; set; }
+    public bool DisableNotifications { get; set; } = false;
     public string Theme { get; set; } = "Midnight";
     public string WidgetStyle { get; set; } = "Minimalism";
+    public string TextSize { get; set; } = "Medium";
+    public string CustomColor { get; set; } = "";
 }
 
 public static class SettingsStore
