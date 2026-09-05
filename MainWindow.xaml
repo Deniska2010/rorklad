@@ -1,34 +1,98 @@
 <Window x:Class="CollegeScheduleGadget.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Розклад" Height="320" Width="300"
+        Title="Розклад" Height="430" Width="340"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="CanResize" MinWidth="280" MinHeight="260"
         Topmost="False" ShowInTaskbar="False"
-        Loaded="Window_Loaded" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+        Loaded="Window_Loaded" SizeChanged="Window_SizeChanged"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
 
-    <Border Background="#C0141414" CornerRadius="12" Padding="15">
-        <StackPanel>
-            <TextBlock Text="АК-25-02 | П'ятниця (1 тиж.)" 
-                       Foreground="White" FontSize="15" FontWeight="Bold" 
-                       Margin="0,0,0,10" Padding="0,0,0,5"/>
-
-            <StackPanel Margin="0,0,0,10">
-                <TextBlock Text="1 пара (08:00 - 09:20)" Foreground="#99FFFFFF" FontSize="12"/>
-                <TextBlock Text="Українська література" Foreground="White" FontSize="14" FontWeight="Medium"/>
-                <TextBlock Text="👨‍🏫 Черковський Р.В.    🚪 ауд. 301" Foreground="White" FontSize="13"/>
+    <Border x:Name="ScheduleCard" Background="#C0141414" CornerRadius="12" Padding="15">
+        <Border.Resources>
+            <Style x:Key="IconButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="2"/>
+                <Setter Property="Foreground" Value="#D8FFFFFF"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Border.Resources>
+        <Grid>
+            <StackPanel x:Name="SetupView">
+                <TextBlock Text="Оберіть групу" Foreground="White" FontSize="22"
+                           FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <TextBlock Text="Введіть назву групи, щоб завантажити ваш розклад."
+                           Foreground="#B8FFFFFF" FontSize="13" TextWrapping="Wrap"
+                           Margin="0,0,0,20"/>
+                <TextBox x:Name="GroupInput" Height="34" Padding="8,5" FontSize="14"
+                         ToolTip="Почніть вводити назву групи"
+                         TextChanged="GroupInput_TextChanged"/>
+                <ListBox x:Name="GroupSuggestions" MaxHeight="130" Visibility="Collapsed"
+                         SelectionChanged="GroupSuggestions_SelectionChanged"/>
+                <Button Content="Показати розклад" Click="StartButton_Click"
+                        HorizontalAlignment="Left" Padding="14,8" Margin="0,16,0,0"/>
+                <TextBlock x:Name="SetupStatusText" Foreground="#99FFFFFF" FontSize="12"
+                           TextWrapping="Wrap" Margin="0,12,0,0"/>
             </StackPanel>
 
-            <StackPanel Margin="0,0,0,10">
-                <TextBlock Text="2 пара (09:30 - 10:50)" Foreground="#99FFFFFF" FontSize="12"/>
-                <TextBlock Text="Історія України" Foreground="#00D2FF" FontSize="14" FontWeight="Bold"/>
-                <TextBlock Text="👨‍🏫 Боднарчук О.В.      🚪 ауд. 215" Foreground="#00D2FF" FontSize="13"/>
-            </StackPanel>
-
-            <StackPanel>
-                <TextBlock Text="3 пара (11:10 - 12:30)" Foreground="#99FFFFFF" FontSize="12"/>
-                <TextBlock Text="Основи економічної теорії" Foreground="White" FontSize="14" FontWeight="Medium"/>
-                <TextBlock Text="👩‍🏫 Силкіна Г.А.        🚪 ауд. 410" Foreground="White" FontSize="13"/>
-            </StackPanel>
-        </StackPanel>
+            <Grid x:Name="ScheduleView" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <TextBlock x:Name="GroupTitle" Text="Розклад" Foreground="White"
+                               FontSize="17" FontWeight="Bold" Margin="0,0,42,10"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="×" Click="CloseButton_Click"
+                                    Style="{StaticResource IconButtonStyle}" ToolTip="Закрити"/>
+                            <Button x:Name="UpdateButton" Content="↻" Click="UpdateButton_Click"
+                                Visibility="Collapsed" Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Доступне оновлення"/>
+                        <Button x:Name="PinButton" Content="📌" Click="PinButton_Click"
+                            Style="{StaticResource IconButtonStyle}" ToolTip="Закріпити"/>
+                        <Button Content="⚙" Click="SettingsButton_Click" Width="30" Height="30"
+                            Style="{StaticResource IconButtonStyle}" ToolTip="Налаштування"/>
+                        </StackPanel>
+                </Grid>
+                <TextBlock x:Name="StatusText" Grid.Row="1" Text="Завантаження..."
+                           Foreground="#99FFFFFF" FontSize="12" Margin="0,0,0,8"
+                           TextWrapping="Wrap"/>
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="CountdownText" Foreground="#66D9FF" FontSize="12"
+                               Margin="0,0,0,8"/>
+                    <ScrollViewer Grid.Row="1" MaxHeight="320" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="LessonsPanel"/>
+                    </ScrollViewer>
+                </Grid>
+                <DockPanel Grid.Row="3" Margin="0,10,0,0" LastChildFill="False">
+                    <Button Content="◀" Click="PreviousDayButton_Click" Width="28" Height="26"
+                            Padding="0" FontSize="12" ToolTip="Попередній день"/>
+                    <TextBlock x:Name="SelectedDayText" Text="Субота" Foreground="#D8FFFFFF"
+                               FontSize="12" VerticalAlignment="Center" Margin="10,0"/>
+                    <Button Content="▶" Click="NextDayButton_Click" Width="28" Height="26"
+                            Padding="0" FontSize="12" ToolTip="Наступний день"/>
+                </DockPanel>
+            </Grid>
+        </Grid>
     </Border>
 </Window>

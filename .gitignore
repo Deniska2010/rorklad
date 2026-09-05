@@ -1,0 +1,21 @@
+# .NET build output
+bin/
+obj/
+publish/
+
+# Visual Studio and VS Code user files
+.vs/
+*.user
+*.suo
+
+# Local application data
+*.local.json
+
+# Signing certificates and private keys
+*.pfx
+*.p12
+*.snk
+
+# OS files
+.DS_Store
+Thumbs.db
