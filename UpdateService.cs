@@ -12,7 +12,7 @@ public sealed class UpdateInfo
 
 public static class UpdateService
 {
-    public const string CurrentVersion = "1.1";
+    public const string CurrentVersion = "1.1.1";
     private const string ReleasesUrl = "https://api.github.com/repos/Deniska2010/rorklad/releases/latest";
     private static readonly HttpClient Client = CreateClient();
     public static bool IsConfigured => true;
