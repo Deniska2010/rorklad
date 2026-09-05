@@ -190,6 +190,13 @@ public partial class SettingsWindow : Window
         ColorPreview.Background = GetCustomColorBrush();
     }
 
+        private void ResetColorButton_Click(object sender, RoutedEventArgs e)
+    {
+        Settings.CustomColor = "";
+        ColorPreview.Tag = "";
+        ColorPreview.Background = System.Windows.Media.Brushes.Transparent;
+    }
+
     private System.Windows.Media.Brush GetCustomColorBrush()
     {
         if (ColorPreview.Tag is not string value || string.IsNullOrWhiteSpace(value))

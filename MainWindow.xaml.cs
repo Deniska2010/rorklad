@@ -720,8 +720,24 @@ namespace CollegeScheduleGadget
 
         private void ApplyAppearance()
         {
-            var background = string.IsNullOrWhiteSpace(settings.CustomColor)
-                ? settings.Theme switch
+            System.Windows.Media.Color bgColor;
+
+            if (!string.IsNullOrWhiteSpace(settings.CustomColor))
+            {
+                try
+                {
+                    // Безпечно конвертуємо власний колір і додаємо прозорість C0 (близько 75%)
+                    var baseColor = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(settings.CustomColor);
+                    bgColor = System.Windows.Media.Color.FromArgb(0xC0, baseColor.R, baseColor.G, baseColor.B);
+                }
+                catch
+                {
+                    bgColor = System.Windows.Media.Color.FromArgb(0xC0, 0x14, 0x14, 0x14);
+                }
+            }
+            else
+            {
+                var backgroundHex = settings.Theme switch
                 {
                     "Violet" => "#C026163D",
                     "Ember" => "#C03D2118",
@@ -730,11 +746,11 @@ namespace CollegeScheduleGadget
                     "Matcha" => "#C0202A22", 
                     "Ocean" => "#C00B1B2E", 
                     _ => "#C0141414"
-                }
-                : $"C0{settings.CustomColor.TrimStart('#')}";
+                };
+                bgColor = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(backgroundHex);
+            }
 
-            ScheduleCard.Background = new SolidColorBrush(
-                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(background));
+            ScheduleCard.Background = new SolidColorBrush(bgColor);
             ScheduleCard.CornerRadius = settings.WidgetStyle switch
             {
                 "Cloud" => new CornerRadius(22),
