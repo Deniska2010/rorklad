@@ -1,0 +1,84 @@
+<Window x:Class="CollegeScheduleGadget.BellsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Розклад дзвінків" Height="430" Width="280" MinWidth="220" MinHeight="250"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ShowInTaskbar="False" ResizeMode="CanResize"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged" Loaded="Window_Loaded">
+    
+    <Window.Resources>
+        <Style x:Key="IconButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#33FFFFFF"/></Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                <Track.Thumb><Thumb><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="#40FFFFFF" CornerRadius="3"/></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+                            </Track>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border x:Name="ScheduleCard" Background="#C0101018" CornerRadius="12" Padding="10" Margin="8">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <StackPanel HorizontalAlignment="Left">
+                    <TextBlock x:Name="GroupTitle" Text="Дзвінки" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock x:Name="StatusText" Text="Режим дзвінків" Foreground="#99FFFFFF" FontSize="12" Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <Button x:Name="PinButton" Content="📌" Click="PinButton_Click" Style="{StaticResource IconButtonStyle}" FontSize="14"/>
+                    <Button x:Name="CloseButton" Content="✕" Click="CloseButton_Click" Style="{StaticResource IconButtonStyle}" FontSize="14"/>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <TextBlock x:Name="CountdownText" Text="" Foreground="#00F0FF" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            </Grid>
+
+            <ScrollViewer x:Name="LessonsScrollViewer" Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="LessonsPanel" Orientation="Vertical" Margin="0,0,0,10"/>
+            </ScrollViewer>
+
+            <Grid Grid.Row="3" Margin="0,10,0,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <TextBlock x:Name="SelectedDayText" Text="Звичайні" Foreground="#99FFFFFF" FontSize="12" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock x:Name="ClockText" Text="00:00:00" Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

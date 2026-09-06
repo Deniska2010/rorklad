@@ -1,162 +1,455 @@
 <Window x:Class="CollegeScheduleGadget.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Налаштування" Width="760" Height="500"
-        WindowStartupLocation="CenterOwner"
-        WindowStyle="SingleBorderWindow" ResizeMode="CanResize"
-        MinWidth="650" MinHeight="420" Background="#1C2430"
-        ShowInTaskbar="True">
+        Title="Налаштування" Width="900" Height="600"
+        WindowStartupLocation="Manual"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="CanResize" MinWidth="750" MinHeight="500"
+        Loaded="Window_Loaded" Closing="Window_Closing">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="8" GlassFrameThickness="-1"/>
+    </WindowChrome.WindowChrome>
+
     <Window.Resources>
-        <Style x:Key="NavigationButtonStyle" TargetType="Button">
+        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#2B2B2C" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#2B2B2C" />
+
+        <Style TargetType="ScrollBar">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#B8FFFFFF"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                <Track.Thumb><Thumb><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="#40FFFFFF" CornerRadius="4" Margin="2,0"/></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+                            </Track>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E0FFFFFF"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Margin" Value="0,2,0,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="ActiveIndicator" Width="3" Height="16" Background="#4CC2FF" HorizontalAlignment="Left" CornerRadius="2" Visibility="Collapsed" Margin="-8,0,0,0"/>
+                                <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#1AFFFFFF"/></Trigger>
+                            <Trigger Property="Tag" Value="Active"><Setter TargetName="Bd" Property="Background" Value="#26FFFFFF"/><Setter TargetName="ActiveIndicator" Property="Visibility" Value="Visible"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RoundedButton" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Opacity" Value="0.8"/></Trigger></Style.Triggers>
+        </Style>
+
+        <Style x:Key="WinControlBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#33FFFFFF"/></Trigger></Style.Triggers>
+        </Style>
+
+        <Style x:Key="Win11Toggle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
+                            <ContentPresenter VerticalAlignment="Center" Margin="0,0,15,0"/>
+                            <Border x:Name="Track" Grid.Column="1" Width="40" Height="20" CornerRadius="10" Background="#33FFFFFF" BorderBrush="#66FFFFFF" BorderThickness="1" VerticalAlignment="Center">
+                                <Ellipse x:Name="Thumb" Width="12" Height="12" Fill="#BFFFFFFF" HorizontalAlignment="Left" Margin="3,0,0,0"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="#4CC2FF"/>
+                                <Setter TargetName="Track" Property="BorderBrush" Value="#4CC2FF"/>
+                                <Setter TargetName="Thumb" Property="Fill" Value="#1C1C1C"/>
+                                <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right"/>
+                                <Setter TargetName="Thumb" Property="Margin" Value="0,0,3,0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#1AFFFFFF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#33FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TextBox"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4"><ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/></Border></ControlTemplate></Setter.Value></Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#2B2B2C"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border>
+                        <ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Bd" Property="Background" Value="#40FFFFFF"/></Trigger></ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" Focusable="false" IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="#1AFFFFFF" BorderBrush="#33FFFFFF" BorderThickness="1" CornerRadius="4">
+                                            <Path Fill="White" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Data="M0,0 L4,4 L8,0 Z"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" Margin="10,6,30,6" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <Popup Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                                <Border Background="#2B2B2C" BorderThickness="1" BorderBrush="#33FFFFFF" CornerRadius="4" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="200">
+                                    <ScrollViewer Margin="1,4,1,4"><StackPanel IsItemsHost="True" /></ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
+
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="190"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Border Background="#18202B" Padding="12">
+        <Border Margin="8" Background="#FA1A1C20" CornerRadius="8" BorderBrush="#33FFFFFF" BorderThickness="1" MouseDown="Window_MouseDown">
             <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <StackPanel>
-                <TextBlock Text="Налаштування" Foreground="White" FontSize="20"
-                       FontWeight="SemiBold" Margin="8,8,8,24"/>
-                <Button x:Name="GeneralTabButton" Content="⚙  Загальні" Click="GeneralTab_Click"
-                    Style="{StaticResource NavigationButtonStyle}"/>
-                <Button x:Name="ScheduleTabButton" Content="▣  Розклад" Click="ScheduleTab_Click"
-                    Style="{StaticResource NavigationButtonStyle}"/>
-            </StackPanel>
-            <Button x:Name="AboutTabButton" Grid.Row="1" Content="ⓘ  Про програму" Click="AboutTab_Click"
-                Style="{StaticResource NavigationButtonStyle}"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="45"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Background="Transparent">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                        <TextBlock Text="⚙" Foreground="White" FontSize="16" Margin="0,0,10,0"/>
+                        <TextBlock Text="Налаштування" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,1,0">
+                        <Button Content="—" Width="45" Height="30" Style="{StaticResource WinControlBtn}" Click="MinimizeBtn_Click"/>
+                        <Button Content="☐" Width="45" Height="30" Style="{StaticResource WinControlBtn}" Click="MaximizeBtn_Click"/>
+                        <Button Content="✕" Width="45" Height="30" Style="{StaticResource WinControlBtn}" Click="CloseBtn_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border BorderBrush="#15FFFFFF" BorderThickness="0,0,1,0" Padding="15,20,15,20">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0">
+                                <Button x:Name="GeneralTabButton" Click="GeneralTab_Click" Style="{StaticResource SidebarButtonStyle}" Tag="Active">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="🏠" Width="30" FontSize="14"/><TextBlock Text="Домашня сторінка"/></StackPanel>
+                                </Button>
+                                <Button x:Name="ScheduleTabButton" Click="ScheduleTab_Click" Style="{StaticResource SidebarButtonStyle}">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="📅" Width="30" FontSize="14"/><TextBlock Text="Розклад та вигляд"/></StackPanel>
+                                </Button>
+                                <Button x:Name="BellsTabButton" Click="BellsTab_Click" Style="{StaticResource SidebarButtonStyle}">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="🔔" Width="30" FontSize="14"/><TextBlock Text="Дзвінки та час"/></StackPanel>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2">
+                                <Button x:Name="AboutTabButton" Click="AboutTab_Click" Style="{StaticResource SidebarButtonStyle}">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="ℹ️" Width="30" FontSize="14"/><TextBlock Text="Про програму"/></StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="30,10,40,30">
+                        <StackPanel>
+                            <TextBlock x:Name="ContentTitle" Text="Домашня сторінка" Foreground="White" FontSize="32" FontWeight="SemiBold" Margin="0,0,0,30"/>
+
+                            <StackPanel x:Name="GeneralPanel">
+                                <TextBlock Text="Базові параметри" Foreground="White" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <Border Background="#0AFFFFFF" CornerRadius="8" BorderBrush="#15FFFFFF" BorderThickness="1">
+                                    <StackPanel>
+                                        <Grid Margin="20,15">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Група за замовчуванням" Foreground="White" FontSize="14"/>
+                                                <TextBlock Text="Оберіть групу, яка завантажиться при старті" Foreground="#99FFFFFF" FontSize="12" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            
+                                            <!-- ВИПРАВЛЕНО БАГ З НАКЛАДАННЯМ СПИСКУ -->
+                                            <Grid Grid.Column="1" VerticalAlignment="Top">
+                                                <TextBox x:Name="GroupInput" Height="32" VerticalAlignment="Top" TextChanged="GroupInput_TextChanged"/>
+                                                <ListBox x:Name="GroupSuggestions" Margin="0,36,0,0" VerticalAlignment="Top" MaxHeight="110" Visibility="Collapsed" SelectionChanged="GroupSuggestions_SelectionChanged" Background="#2B2B2C" BorderThickness="1" BorderBrush="#33FFFFFF" Foreground="White" Padding="4" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                                    <ListBox.ItemContainerStyle>
+                                                        <Style TargetType="ListBoxItem">
+                                                            <Setter Property="Padding" Value="10,6"/>
+                                                            <Setter Property="Cursor" Value="Hand"/>
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                                        <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border>
+                                                                        <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#33FFFFFF"/></Trigger></ControlTemplate.Triggers>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </ListBox.ItemContainerStyle>
+                                                    <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding}"/></DataTemplate></ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </Grid>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <CheckBox x:Name="StartWithWindowsCheckBox" Style="{StaticResource Win11Toggle}">
+                                                <StackPanel>
+                                                    <TextBlock Text="Запускати разом із Windows" Foreground="White" FontSize="14"/>
+                                                    <TextBlock Text="Віджет з'являтиметься на робочому столі автоматично" Foreground="#99FFFFFF" FontSize="12"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <CheckBox x:Name="DisableNotificationsCheckBox" Style="{StaticResource Win11Toggle}">
+                                                <StackPanel>
+                                                    <TextBlock Text="Вимкнути сповіщення" Foreground="White" FontSize="14"/>
+                                                    <TextBlock Text="Не показувати пуш-повідомлення за 3 хв до пари" Foreground="#99FFFFFF" FontSize="12"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <TextBlock Text="Службові дії" Foreground="White" FontSize="18" FontWeight="SemiBold" Margin="0,30,0,10"/>
+                                <Border Background="#0AFFFFFF" CornerRadius="8" BorderBrush="#15FFFFFF" BorderThickness="1">
+                                    <StackPanel>
+                                        <Grid Margin="20,15">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Оновлення розкладу" Foreground="White" FontSize="14"/>
+                                                <TextBlock Text="Примусово завантажити найсвіжіші дані з сайту" Foreground="#99FFFFFF" FontSize="12"/>
+                                            </StackPanel>
+                                            <Button Content="Оновити" Click="TestRefreshButton_Click" HorizontalAlignment="Right" Padding="20,6" Background="#1AFFFFFF" Foreground="White" BorderThickness="1" BorderBrush="#33FFFFFF" Style="{StaticResource RoundedButton}"/>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Перевірка оновлень віджета" Foreground="White" FontSize="14"/>
+                                                <TextBlock x:Name="UpdateStatusText" Text="Перевірити наявність нових версій" Foreground="#99FFFFFF" FontSize="12"/>
+                                            </StackPanel>
+                                            <Button Content="Перевірити" Click="CheckUpdatesButton_Click" HorizontalAlignment="Right" Padding="20,6" Background="#1AFFFFFF" Foreground="White" BorderThickness="1" BorderBrush="#33FFFFFF" Style="{StaticResource RoundedButton}"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel x:Name="SchedulePanel" Visibility="Collapsed">
+                                <TextBlock Text="Вигляд віджета" Foreground="White" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <Border Background="#0AFFFFFF" CornerRadius="8" BorderBrush="#15FFFFFF" BorderThickness="1">
+                                    <StackPanel>
+                                        <Grid Margin="20,15">
+                                            <CheckBox x:Name="ShowFullWeekCheckBox" Style="{StaticResource Win11Toggle}">
+                                                <StackPanel>
+                                                    <TextBlock Text="Показувати весь тиждень (Пн-Пт)" Foreground="White" FontSize="14"/>
+                                                    <TextBlock Text="Розклад малюватиметься у широкому вигляді колонками" Foreground="#99FFFFFF" FontSize="12"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Розмір тексту та відступів" Foreground="White" FontSize="14"/>
+                                                <TextBlock Text="Налаштуйте масштаб інтерфейсу під себе" Foreground="#99FFFFFF" FontSize="12"/>
+                                            </StackPanel>
+                                            <ComboBox x:Name="TextSizeComboBox" Grid.Column="1" Height="32" SelectedValuePath="Tag">
+                                                <ComboBoxItem Content="Маленький (Компактний)" Tag="Small"/>
+                                                <ComboBoxItem Content="Середній (Стандартний)" Tag="Medium"/>
+                                                <ComboBoxItem Content="Великий" Tag="Large"/>
+                                            </ComboBox>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Стиль картки" Foreground="White" FontSize="14"/>
+                                            </StackPanel>
+                                            <ComboBox x:Name="StyleComboBox" Grid.Column="1" Height="32" SelectedValuePath="Tag">
+                                                <ComboBoxItem Content="Стандартний" Tag="Minimalism"/>
+                                                <ComboBoxItem Content="Хмаринка" Tag="Cloud"/>
+                                            </ComboBox>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Text="Кольори та прозорість" Foreground="White" FontSize="18" FontWeight="SemiBold" Margin="0,30,0,10"/>
+                                <Border Background="#0AFFFFFF" CornerRadius="8" BorderBrush="#15FFFFFF" BorderThickness="1">
+                                    <StackPanel>
+                                        <Grid Margin="20,15">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Прозорість фону" Foreground="White" FontSize="14"/>
+                                                <TextBlock x:Name="OpacityValue" Text="88%" Foreground="#4CC2FF" FontSize="12" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <Slider x:Name="OpacitySlider" Minimum="0.25" Maximum="1" Width="200" HorizontalAlignment="Right" VerticalAlignment="Center" ValueChanged="OpacitySlider_ValueChanged"/>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center"><TextBlock Text="Тема оформлення" Foreground="White" FontSize="14"/></StackPanel>
+                                            <ComboBox x:Name="ThemeComboBox" Grid.Column="1" Height="32" SelectedValuePath="Tag">
+                                                <ComboBoxItem Content="Midnight · Синьо-чорний" Tag="Midnight"/>
+                                                <ComboBoxItem Content="Violet · Фіолетовий" Tag="Violet"/>
+                                                <ComboBoxItem Content="Ember · Помаранчевий" Tag="Ember"/>
+                                                <ComboBoxItem Content="Graphite · Строгий сірий" Tag="Graphite"/>
+                                                <ComboBoxItem Content="Cyberpunk · Неоновий" Tag="Cyberpunk"/>
+                                                <ComboBoxItem Content="Matcha · Зелений чай" Tag="Matcha"/>
+                                                <ComboBoxItem Content="Ocean · Глибокий синій" Tag="Ocean"/>
+                                            </ComboBox>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <StackPanel VerticalAlignment="Center"><TextBlock Text="Свій власний колір фону" Foreground="White" FontSize="14"/></StackPanel>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <Border x:Name="CustomColorPreview" Width="30" Height="30" Background="Transparent" CornerRadius="15" BorderBrush="#66FFFFFF" BorderThickness="1"/>
+                                                <Button Content="Обрати" Click="CustomColorButton_Click" Margin="10,0,0,0" Padding="15,4" Background="#1AFFFFFF" Foreground="White" BorderThickness="1" BorderBrush="#33FFFFFF" Style="{StaticResource RoundedButton}"/>
+                                                <Button Content="Скинути" Click="ResetColorButton_Click" Margin="10,0,0,0" Padding="15,4" Background="#1AFFFFFF" Foreground="White" BorderThickness="1" BorderBrush="#33FFFFFF" Style="{StaticResource RoundedButton}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel x:Name="BellsPanel" Visibility="Collapsed">
+                                <TextBlock Text="Режим Дзвінків" Foreground="White" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <Border Background="#0AFFFFFF" CornerRadius="8" BorderBrush="#15FFFFFF" BorderThickness="1">
+                                    <StackPanel>
+                                        <Grid Margin="20,15">
+                                            <CheckBox x:Name="IsBellsModeCheckBox" Style="{StaticResource Win11Toggle}">
+                                                <StackPanel>
+                                                    <TextBlock Text="Увімкнути віджет дзвінків" Foreground="White" FontSize="14"/>
+                                                    <TextBlock Text="На екрані з'явиться окреме вікно з відліком часу" Foreground="#99FFFFFF" FontSize="12"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <CheckBox x:Name="UseShortenedBellsCheckBox" Style="{StaticResource Win11Toggle}">
+                                                <StackPanel>
+                                                    <TextBlock Text="Скорочений розклад дзвінків" Foreground="White" FontSize="14"/>
+                                                    <TextBlock Text="Час пар по 60 хвилин замість 80" Foreground="#99FFFFFF" FontSize="12"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </Grid>
+                                        <Separator Background="#15FFFFFF" Height="1"/>
+                                        <Grid Margin="20,15">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center"><TextBlock Text="Кольорова тема дзвінків" Foreground="White" FontSize="14"/></StackPanel>
+                                            <ComboBox x:Name="BellsThemeComboBox" Grid.Column="1" Height="32" SelectedValuePath="Tag">
+                                                <ComboBoxItem Content="Midnight" Tag="Midnight"/>
+                                                <ComboBoxItem Content="Violet" Tag="Violet"/>
+                                                <ComboBoxItem Content="Ember" Tag="Ember"/>
+                                                <ComboBoxItem Content="Graphite" Tag="Graphite"/>
+                                                <ComboBoxItem Content="Cyberpunk" Tag="Cyberpunk"/>
+                                                <ComboBoxItem Content="Matcha" Tag="Matcha"/>
+                                                <ComboBoxItem Content="Ocean" Tag="Ocean"/>
+                                            </ComboBox>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel x:Name="AboutPanel" Visibility="Collapsed">
+                                <Border Background="#0AFFFFFF" CornerRadius="8" BorderBrush="#15FFFFFF" BorderThickness="1" Padding="20">
+                                    <StackPanel>
+                                        <TextBlock Text="College Schedule Gadget" Foreground="White" FontSize="22" FontWeight="Bold"/>
+                                        <TextBlock Text="Версія 1.1" Foreground="#4CC2FF" FontSize="14" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                                        <TextBlock Text="Спеціально розроблений розумний віджет студентом АК25-02 Настишин Д. І. для студентів ВСП «ФКЕП ІФНТУНГ». Показує розклад пар, слідкує за дзвінками і легко кастомізується під ваш робочий стіл." Foreground="#BFFFFFFF" FontSize="14" TextWrapping="Wrap" Margin="0,15,0,0"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                                            <Button Content="💬  Написати автору (Telegram)" Click="TgSupportButton_Click" Background="#26FFFFFF" Foreground="White" BorderThickness="0" Padding="15,8" Margin="0,0,10,0" Style="{StaticResource RoundedButton}"/>
+                                            <Button Content="☕  Підтримати (Monobank)" Click="DonateButton_Click" Background="#4CC2FF" Foreground="Black" BorderThickness="0" Padding="15,8" Style="{StaticResource RoundedButton}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,20">
+                        <Button Content="Скасувати" Click="CancelButton_Click" Background="Transparent" Foreground="White" BorderThickness="0" Padding="25,8" Margin="0,0,10,0" Style="{StaticResource RoundedButton}"/>
+                        <Button Content="Зберегти" Click="SaveButton_Click" Background="#4CC2FF" Foreground="Black" BorderThickness="0" Padding="30,8" Style="{StaticResource RoundedButton}"/>
+                    </StackPanel>
+                </Grid>
             </Grid>
         </Border>
 
-        <Border Grid.Column="1" Background="#F01C2430" Padding="30">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
-                        <StackPanel x:Name="GeneralPanel">
-                            <TextBlock Text="Загальні" Foreground="White" FontSize="25"
-                                       FontWeight="SemiBold" Margin="0,0,0,24"/>
-                            <TextBlock Text="Група за замовчуванням" Foreground="#D8FFFFFF"
-                                       FontSize="14" Margin="0,0,0,8"/>
-                            <TextBox x:Name="GroupInput" Height="34" Padding="8,5" FontSize="14"
-                                     TextChanged="GroupInput_TextChanged"/>
-                            <ListBox x:Name="GroupSuggestions" MaxHeight="110" Visibility="Collapsed"
-                                     SelectionChanged="GroupSuggestions_SelectionChanged">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis"
-                                                   ToolTip="{Binding}"/>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <TextBlock Text="Ця група завантажуватиметься після запуску програми."
-                                       Foreground="#99FFFFFF" FontSize="12" Margin="0,10,0,0"/>
-                            <CheckBox x:Name="StartWithWindowsCheckBox"
-                                      Content="Запускати разом із Windows"
-                                      Foreground="#D8FFFFFF" Margin="0,24,0,0"/>
-                            <CheckBox x:Name="DisableNotificationsCheckBox"
-                                      Content="Вимкнути сповіщення про наближення пари"
-                                      Foreground="#D8FFFFFF" Margin="0,10,0,0"/>
-                            <Button Content="Перевірити оновлення" Click="CheckUpdatesButton_Click"
-                                    HorizontalAlignment="Left" Padding="14,8" Margin="0,18,0,0"/>
-                            <TextBlock x:Name="UpdateStatusText" Foreground="#99FFFFFF"
-                                       FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"/>
-                            <Button Content="Оновлення розкладу" Click="TestRefreshButton_Click"
-                                    HorizontalAlignment="Left" Padding="12,7" Margin="0,22,0,0"/>
-                        </StackPanel>
-
-                        <StackPanel x:Name="SchedulePanel" Visibility="Collapsed">
-                            <TextBlock Text="Розклад" Foreground="White" FontSize="25"
-                                       FontWeight="SemiBold" Margin="0,0,0,24"/>
-                            <DockPanel Margin="0,0,0,10">
-                                <TextBlock Text="Прозорість віджета" Foreground="#D8FFFFFF"
-                                           FontSize="14"/>
-                                <TextBlock x:Name="OpacityValue" DockPanel.Dock="Right"
-                                           Foreground="#D8FFFFFF" FontSize="14"/>
-                            </DockPanel>
-                                <Slider x:Name="OpacitySlider" Minimum="0.25" Maximum="1" Height="28"
-                                    ValueChanged="OpacitySlider_ValueChanged"
-                                    PreviewMouseLeftButtonDown="OpacitySlider_PreviewMouseLeftButtonDown"/>
-                                <TextBlock Text="Розмір тексту" Foreground="#D8FFFFFF" FontSize="14"
-                                       Margin="0,22,0,8"/>
-                                <ComboBox x:Name="TextSizeComboBox" SelectedValuePath="Tag" Height="34">
-                                <ComboBoxItem Content="Маленький" Tag="Small"/>
-                                <ComboBoxItem Content="Середній" Tag="Medium"/>
-                                <ComboBoxItem Content="Великий" Tag="Large"/>
-                                </ComboBox>
-                            <TextBlock Text="Тема" Foreground="#D8FFFFFF" FontSize="14" Margin="0,0,0,8"/>
-                            <ComboBox x:Name="ThemeComboBox" SelectedValuePath="Tag" Height="34">
-                                <ComboBoxItem Content="Midnight · синій чорний" Tag="Midnight"/>
-                                <ComboBoxItem Content="Violet · фіолетовий" Tag="Violet"/>
-                                <ComboBoxItem Content="Ember · помаранчевий" Tag="Ember"/>
-                                <ComboBoxItem Content="Graphite · сірий чорний" Tag="Graphite"/>
-                                <ComboBoxItem Content="Cyberpunk · неоновий" Tag="Cyberpunk"/>
-                                <ComboBoxItem Content="Matcha · зелений чай" Tag="Matcha"/>
-                                <ComboBoxItem Content="Ocean · глибокий синій" Tag="Ocean"/>
-                            </ComboBox>
-                            <TextBlock Text="Стиль картки" Foreground="#D8FFFFFF" FontSize="14"
-                                       Margin="0,22,0,8"/>
-                            <ComboBox x:Name="StyleComboBox" SelectedValuePath="Tag" Height="34">
-                                <ComboBoxItem Content="Стандартний" Tag="Minimalism"/>
-                                <ComboBoxItem Content="Хмаринка" Tag="Cloud"/>
-                            </ComboBox>
-                                <TextBlock Text="Власний колір" Foreground="#D8FFFFFF" FontSize="14"
-                                       Margin="0,22,0,8"/>
-                                <StackPanel Orientation="Horizontal">
-                                    <Border x:Name="CustomColorPreview" Width="42" Height="34"
-                                        Background="Transparent" CornerRadius="8"
-                                        BorderBrush="#66FFFFFF" BorderThickness="1"/>
-                                    <Button Content="Обрати колір" Click="CustomColorButton_Click"
-                                        Padding="12,7" Margin="10,0,0,0"/>
-                                    <Button Content="Скинути" Click="ResetColorButton_Click"
-                                        Padding="12,7" Margin="8,0,0,0"/>
-                                </StackPanel>
-                            <TextBlock Text="Тема та стиль збережуться після перезапуску."
-                                       Foreground="#99FFFFFF" FontSize="12" Margin="0,12,0,0"/>
-                        </StackPanel>
-
-                        <StackPanel x:Name="AboutPanel" Visibility="Collapsed">
-                            <TextBlock Text="Про програму" Foreground="White" FontSize="25"
-                                       FontWeight="SemiBold" Margin="0,0,0,24"/>
-                            <TextBlock Text="College Schedule Gadget" Foreground="#D8FFFFFF"
-                                       FontSize="18" FontWeight="SemiBold"/>
-                            <TextBlock Text="Версія 1.1"
-                                       Foreground="#99FFFFFF" FontSize="13" Margin="0,10,0,0"/>
-                            <TextBlock Text="Створено студентом групи АК-25-02 Настишиним Д. І. для ВСП «ФКЕП ІФНТУНГ»."
-                                       Foreground="#99FFFFFF" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                            <TextBlock Text="Розклад, відлік пар і швидкі налаштування."
-                                       Foreground="#99FFFFFF" FontSize="13" Margin="0,4,0,24" TextWrapping="Wrap"/>
-                            
-                            <Button Content="Повідомити про баг (Telegram)" Click="TgSupportButton_Click"
-                                    HorizontalAlignment="Left" Padding="14,8" Margin="0,0,0,10"/>
-                            <Button Content="Підтримати фінансово (Банка)" Click="DonateButton_Click"
-                                    HorizontalAlignment="Left" Padding="14,8"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
-                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
-                            Margin="0,24,0,0">
-                    <Button Content="Скасувати" Click="CancelButton_Click" Padding="14,7"
-                            Margin="0,0,8,0"/>
-                    <Button Content="Зберегти" Click="SaveButton_Click" Padding="14,7"/>
-                </StackPanel>
-            </Grid>
+        <Border x:Name="ToastNotification" Background="#333333" CornerRadius="8" Padding="20,12" BorderBrush="#555555" BorderThickness="1"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,20"
+                IsHitTestVisible="False" Opacity="0">
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="ToastTransform" Y="20"/>
+            </Border.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="✓" Foreground="#4CC2FF" FontSize="18" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Зміни успішно збережено" Foreground="White" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
         </Border>
     </Grid>
 </Window>
